@@ -38,6 +38,51 @@ navigation:
           - github.GithubIntegration
 
       # TODO: Automatically generate "APIs" reference
-      # TODO: Add "Utilities" section
+
+      - section: Utilities
+        contents:
+          - reference: Authentication
+            apis:
+              - github.Auth.Login
+              - github.Auth.Token
+              - github.Auth.JWT
+              - github.Auth.AppAuth
+              - github.Auth.AppAuthToken
+              - github.Auth.AppInstallationAuth
+              - github.Auth.AppUserAuth
+              - github.Auth.NetrcAuth
+
+          - reference: Logging
+            apis:
+              - github.enable_console_debug_logging
+
+          - reference: Error Handling
+            apis:
+              - github.GithubException
+              - github.BadAttributeException
+              - github.BadCredentialsException
+              - github.TwoFactorException
+              - github.BadUserAgentException
+              - github.RateLimitExceededException
+              - github.IncompletableObject
+              - github.UnknownObjectException
+
+          - reference/DefaultArgument.md
+
+          - reference: Pagination
+            apis:
+              - github.PaginatedList.PaginatedList
+
+          - reference: Input classes
+            apis:
+              - github.InputFileContent.InputFileContent
+              - github.InputGitAuthor.InputGitAuthor
+              - github.InputGitTreeElement.InputGitTreeElement
+
+          - reference: Raw Requests
+            apis:
+              - github.Requester.Requester
+              # TODO: Document other methods?
+
       - scripts.md
       # TODO: Automatically generate "GitHub Objects" reference
