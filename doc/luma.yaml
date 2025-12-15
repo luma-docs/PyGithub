@@ -7,7 +7,6 @@ navigation:
   - tab: Manual
     contents:
       - introduction.md
-      - repro.md
 
       - section: Examples
         contents:
