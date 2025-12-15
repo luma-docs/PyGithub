@@ -39,5 +39,5 @@ navigation:
 
       # TODO: Automatically generate "APIs" reference
       # TODO: Add "Utilities" section
-      # TODO: Add "Scripts" section
+      - scripts.md
       # TODO: Automatically generate "GitHub Objects" reference
