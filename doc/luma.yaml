@@ -1,0 +1,213 @@
+name: PyGithub
+
+socials:
+  - github: https://github.com/PyGithub/PyGithub
+
+navigation:
+  - tab: Manual   
+    # contents: !include manual.yaml
+    contents:
+      - introduction.rst
+
+      - section: Examples
+        contents:
+          - examples/Authentication.rst
+          - examples/MainClass.rst
+          - examples/Repository.rst
+          - examples/Branch.rst
+          - examples/Commit.rst
+          - examples/PullRequest.rst
+          - examples/Issue.rst
+          - examples/Milestone.rst
+          - examples/Webhook.rst
+
+      - section: Development
+        contents:
+          - getting-started.rst
+          - testing.rst
+          - openapi.rst
+          - graphql.rst
+          # - deprecation-warning.rst
+
+      - changes.rst
+
+  - tab: API Reference
+    contents:
+      - reference: Main Classes
+        apis:
+          - github.Github
+          - github.GithubIntegration
+
+      - reference: GitHub Objects
+        apis:
+          - github.AccessToken.AccessToken
+          - github.AdvisoryBase.AdvisoryBase
+          - github.AdvisoryCredit.AdvisoryCredit
+          - github.AdvisoryCreditDetailed.AdvisoryCreditDetailed
+          - github.AdvisoryVulnerability.AdvisoryVulnerability
+          - github.AdvisoryVulnerabilityPackage.AdvisoryVulnerabilityPackage
+          - github.AppAuthentication.AppAuthentication
+          - github.ApplicationOAuth.ApplicationOAuth
+          - github.Artifact.Artifact
+          - github.Auth.Auth
+          - github.AuthenticatedUser.AuthenticatedUser
+          - github.Authorization.Authorization
+          - github.AuthorizationApplication.AuthorizationApplication
+          - github.Autolink.Autolink
+          - github.Branch.Branch
+          - github.BranchProtection.BranchProtection
+          - github.CVSS.CVSS
+          - github.CWE.CWE
+          - github.CheckRun.CheckRun
+          - github.CheckRunAnnotation.CheckRunAnnotation
+          - github.CheckRunOutput.CheckRunOutput
+          - github.CheckSuite.CheckSuite
+          - github.Clones.Clones
+          - github.CodeScanAlert.CodeScanAlert
+          - github.CodeScanAlertInstance.CodeScanAlertInstance
+          - github.CodeScanAlertInstanceLocation.CodeScanAlertInstanceLocation
+          - github.CodeScanRule.CodeScanRule
+          - github.CodeScanTool.CodeScanTool
+          - github.CodeSecurityConfig.CodeSecurityConfig
+          - github.CodeSecurityConfigRepository.CodeSecurityConfigRepository
+          - github.Commit.Commit
+          - github.CommitCombinedStatus.CommitCombinedStatus
+          - github.CommitComment.CommitComment
+          - github.CommitStats.CommitStats
+          - github.CommitStatus.CommitStatus
+          - github.Comparison.Comparison
+          - github.ContentFile.ContentFile
+          - github.Copilot.Copilot
+          - github.CopilotSeat.CopilotSeat
+          - github.DefaultCodeSecurityConfig.DefaultCodeSecurityConfig
+          - github.DependabotAlert.DependabotAlert
+          - github.DependabotAlertAdvisory.DependabotAlertAdvisory
+          - github.DependabotAlertDependency.DependabotAlertDependency
+          - github.DependabotAlertVulnerability.DependabotAlertVulnerability
+          - github.Deployment.Deployment
+          - github.DeploymentStatus.DeploymentStatus
+          - github.DiscussionBase.DiscussionBase
+          - github.DiscussionCommentBase.DiscussionCommentBase
+          - github.Download.Download
+          - github.Enterprise.Enterprise
+          - github.EnterpriseConsumedLicenses.EnterpriseConsumedLicenses
+          - github.Environment.Environment
+          - github.EnvironmentDeploymentBranchPolicy.EnvironmentDeploymentBranchPolicy
+          - github.EnvironmentProtectionRule.EnvironmentProtectionRule
+          - github.EnvironmentProtectionRuleReviewer.EnvironmentProtectionRuleReviewer
+          - github.Event.Event
+          - github.File.File
+          - github.GeneratedReleaseNotes.GeneratedReleaseNotes
+          - github.Gist.Gist
+          - github.GistComment.GistComment
+          - github.GistFile.GistFile
+          - github.GistHistoryState.GistHistoryState
+          - github.GitAuthor.GitAuthor
+          - github.GitBlob.GitBlob
+          - github.GitCommit.GitCommit
+          - github.GitCommitVerification.GitCommitVerification
+          - github.GitObject.GitObject
+          - github.GitRef.GitRef
+          - github.GitRelease.GitRelease
+          - github.GitReleaseAsset.GitReleaseAsset
+          - github.GitTag.GitTag
+          - github.GitTree.GitTree
+          - github.GitTreeElement.GitTreeElement
+          - github.GithubApp.GithubApp
+          - github.GithubException.GithubException
+          - github.GithubObject.GithubObject
+          - github.GithubRetry.GithubRetry
+          - github.GitignoreTemplate.GitignoreTemplate
+          - github.GlobalAdvisory.GlobalAdvisory
+          - github.Hook.Hook
+          - github.HookDelivery.HookDelivery
+          - github.HookDescription.HookDescription
+          - github.HookResponse.HookResponse
+          - github.InputFileContent.InputFileContent
+          - github.InputGitAuthor.InputGitAuthor
+          - github.InputGitTreeElement.InputGitTreeElement
+          - github.Installation.Installation
+          - github.InstallationAuthorization.InstallationAuthorization
+          - github.Invitation.Invitation
+          - github.Issue.Issue
+          - github.IssueComment.IssueComment
+          - github.IssueDependenciesSummary.IssueDependenciesSummary
+          - github.IssueEvent.IssueEvent
+          - github.IssuePullRequest.IssuePullRequest
+          - github.IssueType.IssueType
+          - github.Label.Label
+          - github.License.License
+          - github.Membership.Membership
+          - github.MergedUpstream.MergedUpstream
+          - github.Migration.Migration
+          - github.Milestone.Milestone
+          - github.NamedEnterpriseUser.NamedEnterpriseUser
+          - github.NamedUser.NamedUser
+          - github.Notification.Notification
+          - github.NotificationSubject.NotificationSubject
+          - github.Organization.Organization
+          - github.OrganizationCustomProperty.OrganizationCustomProperty
+          - github.OrganizationDependabotAlert.OrganizationDependabotAlert
+          - github.OrganizationSecret.OrganizationSecret
+          - github.OrganizationVariable.OrganizationVariable
+          - github.PaginatedList.PaginatedList
+          - github.Path.Path
+          - github.Permissions.Permissions
+          - github.Plan.Plan
+          - github.Project.Project
+          - github.ProjectCard.ProjectCard
+          - github.ProjectColumn.ProjectColumn
+          - github.PublicKey.PublicKey
+          - github.PullRequest.PullRequest
+          - github.PullRequestComment.PullRequestComment
+          - github.PullRequestMergeStatus.PullRequestMergeStatus
+          - github.PullRequestPart.PullRequestPart
+          - github.PullRequestReview.PullRequestReview
+          - github.Rate.Rate
+          - github.RateLimit.RateLimit
+          - github.RateLimitOverview.RateLimitOverview
+          - github.Reaction.Reaction
+          - github.Referrer.Referrer
+          - github.RepoCodeSecurityConfig.RepoCodeSecurityConfig
+          - github.Repository.Repository
+          - github.RepositoryAdvisory.RepositoryAdvisory
+          - github.RepositoryDiscussion.RepositoryDiscussion
+          - github.RepositoryDiscussionCategory.RepositoryDiscussionCategory
+          - github.RepositoryDiscussionComment.RepositoryDiscussionComment
+          - github.RepositoryKey.RepositoryKey
+          - github.RepositoryPreferences.RepositoryPreferences
+          - github.Requester.Requester
+          - github.RequiredPullRequestReviews.RequiredPullRequestReviews
+          - github.RequiredStatusChecks.RequiredStatusChecks
+          - github.Secret.Secret
+          - github.SecurityAndAnalysis.SecurityAndAnalysis
+          - github.SecurityAndAnalysisFeature.SecurityAndAnalysisFeature
+          - github.SelfHostedActionsRunner.SelfHostedActionsRunner
+          - github.SelfHostedActionsRunnerApplication.SelfHostedActionsRunnerApplication
+          - github.SelfHostedActionsRunnerJitConfig.SelfHostedActionsRunnerJitConfig
+          - github.SelfHostedActionsRunnerToken.SelfHostedActionsRunnerToken
+          - github.SourceImport.SourceImport
+          - github.Stargazer.Stargazer
+          - github.StatsCodeFrequency.StatsCodeFrequency
+          - github.StatsCommitActivity.StatsCommitActivity
+          - github.StatsContributor.StatsContributor
+          - github.StatsParticipation.StatsParticipation
+          - github.StatsPunchCard.StatsPunchCard
+          - github.SubIssueSummary.SubIssueSummary
+          - github.Tag.Tag
+          - github.Team.Team
+          - github.TeamDiscussion.TeamDiscussion
+          - github.TimelineEvent.TimelineEvent
+          - github.TimelineEventSource.TimelineEventSource
+          - github.Topic.Topic
+          - github.Traffic.Traffic
+          - github.UserKey.UserKey
+          - github.Variable.Variable
+          - github.View.View
+          - github.Workflow.Workflow
+          - github.WorkflowJob.WorkflowJob
+          - github.WorkflowRun.WorkflowRun
+          - github.WorkflowStep.WorkflowStep
+
+      # - apis.rst
+      - scripts.rst
