@@ -78,8 +78,11 @@
 # Copyright 2025 Jason M. Gates <jmgate@sandia.gov>                            #
 # Copyright 2025 Matt Ball <96152357+mball-agathos@users.noreply.github.com>   #
 # Copyright 2025 Mikhail f. Shiryaev <mr.felixoid@gmail.com>                   #
+# Copyright 2025 Ryosuke <88011751+nrysk@users.noreply.github.com>             #
 # Copyright 2025 Tan An Nie <121005973+tanannie22@users.noreply.github.com>    #
 # Copyright 2025 Zdenek Styblik <6183869+zstyblik@users.noreply.github.com>    #
+# Copyright 2026 Enrico Minack <github@enrico.minack.dev>                      #
+# Copyright 2026 Matt Davis <35502728+matt-davis27@users.noreply.github.com>   #
 #                                                                              #
 # This file is part of PyGithub.                                               #
 # http://pygithub.readthedocs.io/                                              #
@@ -308,6 +311,10 @@ class Repository(Framework.TestCase):
             merge_commit_title="PR_TITLE",
             merge_commit_message="PR_BODY",
             web_commit_signoff_required=True,
+            security_and_analysis={
+                "secret_scanning": {"status": "enabled"},
+                "dependabot_security_updates": {"status": "disabled"},
+            },
         )
         self.assertEqual(self.repo.description, "Description edited by PyGithub")
         self.repo.edit("PyGithub", "Python library implementing the full Github API v3")
@@ -330,6 +337,10 @@ class Repository(Framework.TestCase):
         self.assertEqual(self.repo.merge_commit_title, "PR_TITLE")
         self.assertEqual(self.repo.merge_commit_message, "PR_BODY")
         self.assertTrue(self.repo.web_commit_signoff_required)
+        self.assertEqual(self.repo.security_and_analysis.secret_scanning.status, "enabled")
+        self.assertEqual(self.repo.security_and_analysis.dependabot_security_updates.status, "disabled")
+        self.repo.edit("PyGithub", security_and_analysis={"dependabot_security_updates": {"status": "enabled"}})
+        self.assertEqual(self.repo.security_and_analysis.dependabot_security_updates.status, "enabled")
 
     def testEditWithDefaultBranch(self):
         self.assertEqual(self.repo.master_branch, None)
@@ -671,7 +682,7 @@ class Repository(Framework.TestCase):
             ],
         )
         codescan_alert = codescan_alerts[0]
-        self.assertEqual(repr(codescan_alert), "CodeScanAlert(number=6)")
+        self.assertEqual(repr(codescan_alert), 'CodeScanAlert(number=6, id="py/rule-id")')
         self.assertEqual(codescan_alert.state, "open")
         self.assertEqual(
             codescan_alert.url,
@@ -817,50 +828,102 @@ class Repository(Framework.TestCase):
         )
 
     def testCompare(self):
-        comparison = self.repo.compare("v0.6", "v0.7")
-        self.assertEqual(comparison.status, "ahead")
-        self.assertEqual(comparison.ahead_by, 4)
-        self.assertEqual(comparison.behind_by, 0)
-        self.assertEqual(
-            comparison.diff_url,
-            "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.diff",
-        )
-        self.assertEqual(
-            comparison.html_url,
-            "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7",
-        )
-        self.assertEqual(
-            comparison.url,
-            "https://api.github.com/repos/PyGithub/PyGithub/compare/v0.6...v0.7",
-        )
-        self.assertEqual(
-            comparison.patch_url,
-            "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.patch",
-        )
-        self.assertEqual(
-            comparison.permalink_url,
-            "https://github.com/PyGithub/PyGithub/compare/jacquev6:4303c5b...jacquev6:ecda065",
-        )
-        self.assertEqual(comparison.total_commits, 4)
+        with self.captureRequests() as requests:
+            comparison = self.repo.compare("v0.6", "v0.7")
+            self.assertEqual(comparison.status, "ahead")
+            self.assertEqual(comparison.ahead_by, 4)
+            self.assertEqual(comparison.behind_by, 0)
+            self.assertEqual(
+                comparison.diff_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.diff",
+            )
+            self.assertEqual(
+                comparison.html_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7",
+            )
+            self.assertEqual(
+                comparison.url,
+                "https://api.github.com/repos/PyGithub/PyGithub/compare/v0.6...v0.7",
+            )
+            self.assertEqual(
+                comparison.patch_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.patch",
+            )
+            self.assertEqual(
+                comparison.permalink_url,
+                "https://github.com/PyGithub/PyGithub/compare/PyGithub:4303c5b...PyGithub:ecda065",
+            )
+            self.assertEqual(comparison.total_commits, 4)
+            self.assertListKeyEqual(
+                comparison.files,
+                lambda f: f.filename,
+                [
+                    "ReferenceOfClasses.md",
+                    "github/Github.py",
+                    "github/Requester.py",
+                    "setup.py",
+                ],
+            )
+            self.assertEqual(comparison.base_commit.sha, "4303c5b90e2216d927155e9609436ccb8984c495")
+            self.assertListKeyEqual(
+                comparison.commits,
+                lambda c: c.sha,
+                [
+                    "5bb654d26dd014d36794acd1e6ecf3736f12aad7",
+                    "cb0313157bf904f2d364377d35d9397b269547a5",
+                    "0cec0d25e606c023a62a4fc7cdc815309ebf6d16",
+                    "ecda065e01876209d2bdf5fe4e91cee8ffaa9ff7",
+                ],
+            )
+
         self.assertListKeyEqual(
-            comparison.files,
-            lambda f: f.filename,
-            [
-                "ReferenceOfClasses.md",
-                "github/Github.py",
-                "github/Requester.py",
-                "setup.py",
-            ],
+            requests,
+            lambda r: r.url,
+            ["/repos/PyGithub/PyGithub/compare/v0.6...v0.7?page=1"],
         )
-        self.assertEqual(comparison.base_commit.sha, "4303c5b90e2216d927155e9609436ccb8984c495")
+
+    def testCompareCommitsPerPage(self):
+        with self.captureRequests() as requests:
+            comparison = self.repo.compare("v0.6", "v0.7", comparison_commits_per_page=3)
+
+            self.assertEqual(
+                comparison.diff_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.diff",
+            )
+            self.assertEqual(
+                comparison.html_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7",
+            )
+            self.assertEqual(
+                comparison.url,
+                "https://api.github.com/repos/PyGithub/PyGithub/compare/v0.6...v0.7",
+            )
+            self.assertEqual(
+                comparison.patch_url,
+                "https://github.com/PyGithub/PyGithub/compare/v0.6...v0.7.patch",
+            )
+            self.assertEqual(
+                comparison.permalink_url,
+                "https://github.com/PyGithub/PyGithub/compare/PyGithub:4303c5b...PyGithub:ecda065",
+            )
+            self.assertEqual(comparison.total_commits, 4)
+            self.assertListKeyEqual(
+                comparison.commits,
+                lambda c: c.sha,
+                [
+                    "5bb654d26dd014d36794acd1e6ecf3736f12aad7",
+                    "cb0313157bf904f2d364377d35d9397b269547a5",
+                    "0cec0d25e606c023a62a4fc7cdc815309ebf6d16",
+                    "ecda065e01876209d2bdf5fe4e91cee8ffaa9ff7",
+                ],
+            )
+
         self.assertListKeyEqual(
-            comparison.commits,
-            lambda c: c.sha,
+            requests,
+            lambda r: r.url,
             [
-                "5bb654d26dd014d36794acd1e6ecf3736f12aad7",
-                "cb0313157bf904f2d364377d35d9397b269547a5",
-                "0cec0d25e606c023a62a4fc7cdc815309ebf6d16",
-                "ecda065e01876209d2bdf5fe4e91cee8ffaa9ff7",
+                "/repos/PyGithub/PyGithub/compare/v0.6...v0.7?page=1&per_page=3",
+                "/repositories/3544490/compare/v0.6...v0.7?page=2&per_page=3",
             ],
         )
 
@@ -1331,7 +1394,10 @@ class Repository(Framework.TestCase):
         )
 
     def testGetLanguages(self):
-        self.assertEqual(self.repo.get_languages(), {"Python": 127266, "Shell": 673})
+        self.assertEqual(
+            self.repo.get_languages(),
+            {"Python": 127266, "Shell": 673, "url": "https://api.github.com/repos/PyGithub/PyGithub/languages"},
+        )
 
     def testGetMilestones(self):
         self.assertListKeyEqual(self.repo.get_milestones(), lambda m: m.id, [93547])
@@ -2288,7 +2354,11 @@ class Repository(Framework.TestCase):
     def testGetAutomatedSecurityFixes(self):
         self.assertDictEqual(
             self.repo.get_automated_security_fixes(),
-            {"enabled": True, "paused": False},
+            {
+                "enabled": True,
+                "paused": False,
+                "url": "https://api.github.com/repos/PyGithub/PyGithub/automated-security-fixes",
+            },
         )
 
 

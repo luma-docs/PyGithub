@@ -49,6 +49,7 @@
 # Copyright 2025 Greg Fogelberg <52933995+gfog-floqast@users.noreply.github.com>#
 # Copyright 2025 Pavel Abramov <31950564+uncleDecart@users.noreply.github.com> #
 # Copyright 2025 Zachary <6599715+interifter@users.noreply.github.com>         #
+# Copyright 2026 Enrico Minack <github@enrico.minack.dev>                      #
 #                                                                              #
 # This file is part of PyGithub.                                               #
 # http://pygithub.readthedocs.io/                                              #
@@ -784,7 +785,7 @@ class Organization(Framework.TestCase):
         self.assertEqual(custom_property.required, True)
         self.assertEqual(custom_property.default_value, "foo")
         self.assertEqual(custom_property.description, "description")
-        self.assertIsNone(custom_property.url)
+        self.assertEqual(custom_property.url, "https://api.github.com/orgs/BeaverSoftware/properties/schema/property_1")
         self.assertEqual(custom_property.values_editable_by, "org_actors")
 
     def testCreateCustomPropertyValues(self):

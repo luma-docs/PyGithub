@@ -19,6 +19,7 @@
 # Copyright 2024 Enrico Minack <github@enrico.minack.dev>                      #
 # Copyright 2025 Enrico Minack <github@enrico.minack.dev>                      #
 # Copyright 2025 Nick McClorey <32378821+nickrmcclorey@users.noreply.github.com>#
+# Copyright 2026 Denis Blanchette <dblanchette@coveo.com>                      #
 #                                                                              #
 # This file is part of PyGithub.                                               #
 # http://pygithub.readthedocs.io/                                              #
@@ -41,6 +42,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+
+from github import GithubException
 
 from . import Framework
 
@@ -153,6 +156,13 @@ class Workflow(Framework.TestCase):
     def testCreateDispatchForNonTriggerEnabled(self):
         workflow = self.g.get_repo("wrecker/PyGithub").get_workflow("check.yml")
         self.assertFalse(workflow.create_dispatch("main"))
+
+    def testCreateDispatchException(self):
+        workflow = self.g.get_repo("test-org/test-repo").get_workflow("workflow-with-params.yaml")
+        with self.assertRaises(GithubException) as raisedexp:
+            workflow.create_dispatch("main", throw=True)
+        self.assertEqual(raisedexp.exception.status, 422)
+        self.assertEqual(raisedexp.exception.data["message"], "Required input 'mandatory-parameter' not provided")
 
     def testDisable(self):
         workflow = self.g.get_repo("nickrmcclorey/PyGithub").get_workflow("ci.yml")

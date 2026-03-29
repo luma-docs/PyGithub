@@ -135,6 +135,7 @@
 # Copyright 2024 Thomas Cooper <coopernetes@proton.me>                         #
 # Copyright 2024 Thomas Crowley <15927917+thomascrowley@users.noreply.github.com>#
 # Copyright 2024 jodelasur <34933233+jodelasur@users.noreply.github.com>       #
+# Copyright 2025 Aidan McNay <acm289@cornell.edu>                              #
 # Copyright 2025 Bill Napier <napier@pobox.com>                                #
 # Copyright 2025 Christoph Reiter <reiter.christoph@gmail.com>                 #
 # Copyright 2025 Cristiano Salerno <119511125+csalerno-asml@users.noreply.github.com>#
@@ -144,8 +145,11 @@
 # Copyright 2025 Matt Ball <96152357+mball-agathos@users.noreply.github.com>   #
 # Copyright 2025 Mikhail f. Shiryaev <mr.felixoid@gmail.com>                   #
 # Copyright 2025 Oscar van Leusen <oscarvanleusen@gmail.com>                   #
+# Copyright 2025 Ryosuke <88011751+nrysk@users.noreply.github.com>             #
 # Copyright 2025 Tan An Nie <121005973+tanannie22@users.noreply.github.com>    #
 # Copyright 2025 Zdenek Styblik <6183869+zstyblik@users.noreply.github.com>    #
+# Copyright 2026 Enrico Minack <github@enrico.minack.dev>                      #
+# Copyright 2026 Matt Davis <35502728+matt-davis27@users.noreply.github.com>   #
 #                                                                              #
 # This file is part of PyGithub.                                               #
 # http://pygithub.readthedocs.io/                                              #
@@ -233,6 +237,7 @@ import github.RepositoryDiscussion
 import github.RepositoryKey
 import github.RepositoryPreferences
 import github.Secret
+import github.SecretScanAlert
 import github.SecurityAndAnalysis
 import github.SelfHostedActionsRunner
 import github.SourceImport
@@ -317,6 +322,7 @@ if TYPE_CHECKING:
     from github.RepositoryDiscussion import RepositoryDiscussion
     from github.RepositoryKey import RepositoryKey
     from github.RepositoryPreferences import RepositoryPreferences
+    from github.SecretScanAlert import SecretScanAlert
     from github.SecurityAndAnalysis import SecurityAndAnalysis
     from github.SelfHostedActionsRunner import SelfHostedActionsRunner
     from github.SourceImport import SourceImport
@@ -1363,23 +1369,22 @@ class Repository(CompletableGithubObject):
 
         headers, data = self._requester.requestJsonAndCheck("DELETE", f"{self.url}/invitations/{invite_id}")
 
-    def compare(self, base: str, head: str) -> Comparison:
+    def compare(self, base: str, head: str, *, comparison_commits_per_page: int | None = None) -> Comparison:
         """
         :calls: `GET /repos/{owner}/{repo}/compare/{basehead} <https://docs.github.com/en/rest/commits/commits#compare-two-commits>`_
         :param base: string
         :param head: string
+        :param comparison_commits_per_page: int Number of commits retrieved with the comparison. Iterating over the commits property will fetch pages of this size. The default page size is 250, the maximum is 1000. At most 10000 commits can be retrieved.
         :rtype: :class:`github.Comparison.Comparison`
         """
         assert isinstance(base, str), base
         assert isinstance(head, str), head
+        # comparison_commits_per_page asserted in Commit(CompletableGithubObjectWithPaginatedProperty)
         base = urllib.parse.quote(base)
         head = urllib.parse.quote(head)
-        # the compare API has a per_page default of 250, which is different to Consts.DEFAULT_PER_PAGE
-        per_page = self._requester.per_page if self._requester.per_page != Consts.DEFAULT_PER_PAGE else 250
-        # only with page=1 we get the pagination headers for the commits element
-        params = {"page": 1, "per_page": per_page}
-        headers, data = self._requester.requestJsonAndCheck("GET", f"{self.url}/compare/{base}...{head}", params)
-        return github.Comparison.Comparison(self._requester, headers, data, completed=True)
+        return github.Comparison.Comparison(
+            self._requester, url=f"{self.url}/compare/{base}...{head}", per_page=comparison_commits_per_page
+        )
 
     def create_autolink(
         self, key_prefix: str, url_template: str, is_alphanumeric: Opt[bool] = NotSet
@@ -2201,6 +2206,7 @@ class Repository(CompletableGithubObject):
         archived: Opt[bool] = NotSet,
         allow_forking: Opt[bool] = NotSet,
         web_commit_signoff_required: Opt[bool] = NotSet,
+        security_and_analysis: Opt[dict[str, Any]] = NotSet,
     ) -> None:
         """
         :calls: `PATCH /repos/{owner}/{repo} <https://docs.github.com/en/rest/reference/repos>`_
@@ -2237,6 +2243,7 @@ class Repository(CompletableGithubObject):
         assert is_optional(archived, bool), archived
         assert is_optional(allow_forking, bool), allow_forking
         assert is_optional(web_commit_signoff_required, bool), web_commit_signoff_required
+        assert is_optional(security_and_analysis, dict), security_and_analysis
 
         post_parameters: dict[str, Any] = NotSet.remove_unset_items(
             {
@@ -2265,6 +2272,7 @@ class Repository(CompletableGithubObject):
                 "archived": archived,
                 "allow_forking": allow_forking,
                 "web_commit_signoff_required": web_commit_signoff_required,
+                "security_and_analysis": security_and_analysis,
             }
         )
 
@@ -2387,16 +2395,18 @@ class Repository(CompletableGithubObject):
             None,
         )
 
-    def get_commit(self, sha: str) -> Commit:
+    def get_commit(self, sha: str, *, commit_files_per_page: int | None = None) -> Commit:
         """
         :calls: `GET /repos/{owner}/{repo}/commits/{ref} <https://docs.github.com/en/rest/reference/repos#commits>`_
         :param sha: string
+        :param commit_files_per_page: int Number of files retrieved with the commit. Iterating over the files property will fetch pages of this size. Default is 300. Maximum is 300. At most 3000 files can be retrieved.
         :rtype: :class:`github.Commit.Commit`
         """
         assert isinstance(sha, str), sha
+        # commit_files_per_page asserted in Commit(CompletableGithubObjectWithPaginatedProperty)
         sha = urllib.parse.quote(sha, safe="")
         url = f"{self.url}/commits/{sha}"
-        return github.Commit.Commit(self._requester, url=url)
+        return github.Commit.Commit(self._requester, url=url, per_page=commit_files_per_page)
 
     def get_commits(
         self,
@@ -3662,10 +3672,12 @@ class Repository(CompletableGithubObject):
         assert isinstance(id, (int, str)), id
         if isinstance(id, int):
             url = f"{self.url}/releases/{id}"
+            return github.GitRelease.GitRelease(self._requester, url=url)
         else:
             tag = urllib.parse.quote(id, safe="")
             url = f"{self.url}/releases/tags/{tag}"
-        return github.GitRelease.GitRelease(self._requester, url=url)
+            # a release by tag cannot be lazy, we need to get the url with release id
+            return github.GitRelease.GitRelease(self._requester, url=url).complete()
 
     def get_latest_release(self) -> GitRelease:
         """
@@ -4264,17 +4276,162 @@ class Repository(CompletableGithubObject):
         headers, data = self._requester.requestJsonAndCheck("GET", f"{self.url}/actions/artifacts/{artifact_id}")
         return github.Artifact.Artifact(self._requester, headers, data)
 
-    def get_codescan_alerts(self) -> PaginatedList[CodeScanAlert]:
+    def get_codescan_alerts(
+        self,
+        tool_name: Opt[str] = NotSet,
+        tool_guid: Opt[str] = NotSet,
+        ref: Opt[str] = NotSet,
+        pr: Opt[int] = NotSet,
+        sort: Opt[str] = NotSet,
+        direction: Opt[str] = NotSet,
+        state: Opt[str] = NotSet,
+        severity: Opt[str] = NotSet,
+    ) -> PaginatedList[CodeScanAlert]:
         """
         :calls: `GET /repos/{owner}/{repo}/code-scanning/alerts <https://docs.github.com/en/rest/reference/code-scanning#list-code-scanning-alerts-for-a-repository>`_
+        :param tool_name: Optional string
+        :param tool_guid: Optional string
+        :param ref: Optional string
+        :param pr: Optional integer
+        :param sort: Optional string
+        :param direction: Optional string
+        :param state: Optional string
+        :param severity: Optional string
         :rtype: :class:`PaginatedList` of :class:`github.CodeScanAlert.CodeScanAlert`
         """
+        allowed_sorts = ["created", "updated"]
+        allowed_directions = ["asc", "desc"]
+        allowed_states = ["open", "closed", "dismissed", "fixed"]
+        allowed_severities = ["critical", "high", "medium", "low", "warning", "note", "error"]
+        assert is_optional(tool_name, str), tool_name
+        assert is_optional(tool_guid, str), tool_guid
+        assert (
+            tool_name is NotSet or tool_guid is NotSet
+        ), "You can specify the tool by using either tool_guid or tool_name, but not both."
+        assert is_optional(ref, str), ref
+        assert is_optional(pr, int), pr
+        assert sort in allowed_sorts + [NotSet], f"Sort can be one of {', '.join(allowed_sorts)}"
+        assert direction in allowed_directions + [NotSet], f"Direction can be one of {', '.join(allowed_directions)}"
+        assert state in allowed_states + [NotSet], f"State can be one of {', '.join(allowed_states)}"
+        assert severity in allowed_severities + [NotSet], f"Severity can be one of {', '.join(allowed_severities)}"
+        url_parameters = NotSet.remove_unset_items(
+            {
+                "tool_name": tool_name,
+                "tool_guid": tool_guid,
+                "ref": ref,
+                "pr": pr,
+                "sort": sort,
+                "direction": direction,
+                "state": state,
+                "severity": severity,
+            }
+        )
         return PaginatedList(
             github.CodeScanAlert.CodeScanAlert,
             self._requester,
             f"{self.url}/code-scanning/alerts",
-            None,
+            url_parameters,
         )
+
+    def get_codescan_alert(self, number: int) -> CodeScanAlert:
+        """
+        :calls: `GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number} <https://docs.github.com/en/rest/code-scanning/code-scanning#get-a-code-scanning-alert>`_
+        :param number: int
+        :rtype: :class:`github.CodeScanAlert.CodeScanAlert`
+        """
+        assert isinstance(number, int), number
+        headers, data = self._requester.requestJsonAndCheck("GET", f"{self.url}/code-scanning/alerts/{number}")
+        return github.CodeScanAlert.CodeScanAlert(self._requester, headers, data)
+
+    def get_secret_scanning_alerts(
+        self,
+        state: Opt[str] = NotSet,
+        secret_type: Opt[str] = NotSet,
+        resolution: Opt[str] = NotSet,
+        sort: Opt[str] = NotSet,
+        direction: Opt[str] = NotSet,
+        validity: Opt[str] = NotSet,
+        is_publicly_leaked: Opt[bool] = NotSet,
+        is_multi_repo: Opt[bool] = NotSet,
+        hide_secret: Opt[bool] = NotSet,
+    ) -> PaginatedList[SecretScanAlert]:
+        """
+        :calls: `GET /repos/{owner}/{repo}/secret-scanning/alerts <https://docs.github.com/en/rest/secret-scanning/secret-scanning#list-secret-scanning-alerts-for-a-repository>`_
+        :param state: Optional string
+        :param secret_type: Optional string
+        :param resolution: Optional string
+        :param sort: Optional string
+        :param direction: Optional string
+        :param validity: Optional string
+        :param is_publicly_leaked: Optional bool
+        :param is_multi_repo: Optional bool
+        :param hide_secret: Optional bool
+        :rtype: :class:`PaginatedList` of :class:`github.SecretScanAlert.SecretScanAlert`
+        """
+        allowed_states = ["open", "resolved"]
+        # allowed_secret_types = ["http_basic_authentication_header", "http_bearer_authentication_header", ...]
+        allowed_resolutions = [
+            "false_positive",
+            "wont_fix",
+            "revoked",
+            "pattern_edited",
+            "pattern_deleted",
+            "used_in_tests",
+        ]
+        allowed_sorts = ["created", "updated"]
+        allowed_directions = ["asc", "desc"]
+        allowed_validities = ["active", "inactive", "unknown"]
+        assert state in allowed_states + [NotSet], f"State can be one of {', '.join(allowed_states)}"
+        # assert secret_type in allowed_secret_types + [NotSet], \
+        # "Secret_type can be one of the tokens listed on \
+        # https://docs.github.com/en/code-security/secret-scanning/introduction/supported-secret-scanning-patterns#supported-secrets"
+        assert resolution in allowed_resolutions + [
+            NotSet
+        ], f"Resolution can be one of {', '.join(allowed_resolutions)}"
+        assert sort in allowed_sorts + [NotSet], f"Sort can be one of {', '.join(allowed_sorts)}"
+        assert direction in allowed_directions + [NotSet], f"Direction can be one of {', '.join(allowed_directions)}"
+        assert validity in allowed_validities + [NotSet], f"Validity can be one of {', '.join(allowed_validities)}"
+        assert is_optional(is_publicly_leaked, bool), is_publicly_leaked
+        assert is_optional(is_multi_repo, bool), is_multi_repo
+        assert is_optional(hide_secret, bool), hide_secret
+        url_parameters = NotSet.remove_unset_items(
+            {
+                "state": state,
+                "secret_type": secret_type,
+                "resolution": resolution,
+                "sort": sort,
+                "direction": direction,
+                "validity": validity,
+                "is_publicly_leaked": is_publicly_leaked,
+                "is_multi_repo": is_multi_repo,
+                "hide_secret": hide_secret,
+            }
+        )
+        return PaginatedList(
+            github.SecretScanAlert.SecretScanAlert,
+            self._requester,
+            f"{self.url}/secret-scanning/alerts",
+            url_parameters,
+        )
+
+    def get_secret_scanning_alert(self, number: int, hide_secret: Opt[bool] = NotSet) -> SecretScanAlert:
+        """
+        :calls: `GET /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number} <https://docs.github.com/en/rest/secret-scanning/secret-scanning#get-a-secret-scanning-alert>`_
+        :param number: int
+        :param hide_secret: Optional bool
+        :rtype: :class:`github.SecretScanAlert.SecretScanAlert`
+        """
+        assert isinstance(number, int), number
+        assert is_optional(hide_secret, bool), hide_secret
+        query_parameters = NotSet.remove_unset_items(
+            {
+                "hide_secret": hide_secret,
+            }
+        )
+        headers, data = self._requester.requestJsonAndCheck(
+            "GET", f"{self.url}/secret-scanning/alerts/{number}", parameters=query_parameters
+        )
+        return github.SecretScanAlert.SecretScanAlert(self._requester, headers, data)
 
     def get_environments(self) -> PaginatedList[Environment]:
         """
