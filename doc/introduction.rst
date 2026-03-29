@@ -8,8 +8,6 @@ Should you have any question, any remark, or if you find a bug,
 or if there is something you can do with the API but not with PyGithub,
 please `open an issue <https://github.com/PyGithub/PyGithub/issues>`__.
 
-Here';s some text
-
 (Very short) tutorial
 ---------------------
 
@@ -65,7 +63,7 @@ Contributing
 
 This project is community-driven. New PyGithub classes, methods and fixes are authored by the community, then reviewed and released by the project maintainers.
 
-See our :doc:`development` guide for further details.
+See our [development](/getting-started) guide for further details.
 
 Sponsoring
 ----------

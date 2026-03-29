@@ -23,7 +23,7 @@ Run ``scripts/openapi.py --help`` or ``scripts/openapi.py COMMAND --help`` for h
       --exit-code           Indicate changes via non-zeor exit code (default: False)
       --verbose             Provide more information (default: False)
 
-See :doc:`openapi` for details.
+See [Github OpenAPI](/openapi) for details.
 
 Script ``sort_class.py``
 ------------------------
@@ -45,19 +45,19 @@ This script applies that order to all / to specific classes::
       --dry-run       show prospect changes and do not modify the file
 
 
-See :doc:`openapi` for details.
+See [Github OpenAPI](/openapi) for details.
 
 Script ``get-openapi-path.sh``
 ------------------------------
 
-Quickly extract a specific Github API path from the OpenAPI spec. See :ref:`Get an OpenAPI API path <get-openapi-path>`.
+Quickly extract a specific Github API path from the OpenAPI spec. See [Get an OpenAPI API path](openapi#get-openapi-path).
 
 This script requires `jq <https://jqlang.github.io/jq/>`__ to be installed.
 
 Script ``get-openapi-schema.sh``
 --------------------------------
 
-Quickly extract a specific OpenAPI schema from the spec. See :ref:`Get an OpenAPI schema <get-openapi-schema>`.
+Quickly extract a specific OpenAPI schema from the spec. See [Get an OpenAPI schema](openapi#pygithub-class-annotations)`.
 
 This script requires `jq <https://jqlang.github.io/jq/>`__ to be installed.
 
@@ -97,7 +97,7 @@ Run ``scripts/update-assertions.sh --help`` for help::
       --dry-run    Show prospect changes and do not modify the file
       --exit-code  Indicate changes via non-zero exit code
 
-See :ref:`update-assertions` for details.
+See [Updating assertions](/testing#updating-assertions) for details.
 
 Script ``update-assertions.sh``
 -------------------------------
@@ -109,7 +109,7 @@ Invoke the script::
 
     ./scripts/update-assertions.sh TEST_FILE TEST_METHOD
 
-See :ref:`update-assertions` for details.
+See [Updating assertions](/testing#updating-assertions) for details.
 
 Script ``prepare_release.sh``
 -----------------------------
