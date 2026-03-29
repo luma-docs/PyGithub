@@ -5,9 +5,10 @@ Adding classes, attributes and methods
 --------------------------------------
 
 Github provides an `OpenAPI specification for its v3 REST API <https://github.com/github/rest-api-description/>`__.
-This can be used to semi-automate the creation and maintenance of PyGithub classes. This allows for :ref:`adding
-attributes <apply-schemas>` and :ref:`adding methods <create-method>` to PyGithub classes, or
-:ref:`create entire PyGithub classes <create-class>`, including preliminary tests.
+This can be used to semi-automate the creation and maintenance of PyGithub classes. This allows for [adding
+attributes](openapi#automatically-add-schemas-to-pygithub-classes) and 
+[adding methods](openapi#create-a-pygithub-method-from-an-openapi-path) to PyGithub classes, or
+[create entire PyGithub classes](openapi#create-a-pygithub-class-from-an-openapi-schema), including preliminary tests.
 
 The created classes and tests serve as a foundation to bootstrap the implementation phase for new functionality.
 It automates conventions and code style of this code base. It nevertheless requires the developer to review and refactor
@@ -212,8 +213,6 @@ This may produce the following changes::
 Once new schemas have been added to classes, these schemas should be applied next. Only applying the
 schemas will add new attributes to the class.
 
-.. _apply-schemas:
-
 Automatically add attributes to PyGithub classes
 ------------------------------------------------
 
@@ -273,7 +272,8 @@ Create a PyGithub class from an OpenAPI schema
 ----------------------------------------------
 
 Note: PyGithub classes can be created automatically where needed using ``--new-schemas create-class``
-when :ref:`applying schemas <apply-schemas>` or :ref:`creating methods <create-method>`.
+when [applying schemas](/openapi#automatically-add-schemas-to-pygithub-classes) or
+[creating methods](/openapi#create-a-pygithub-method-from-an-openapi-path).
 
 PyGithub classes can be created based on a Github OpenAPI schema. However, it is easier to start from a Github REST API path.
 Given a Github REST API path like ``/app``, you can extract the ``GET`` response from the OpenAPI spec via::
